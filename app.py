@@ -18,7 +18,7 @@ current_status = 0
 # Where we execute this program
 driver = webdriver.Chrome('')  # Use own path for testing
 
-# Make
+# Generating voice responses
 def model_speak(voice_data):
     gtts = gTTS(text=voice_data, lang='en')
     r = random.randint(1,100)
@@ -50,14 +50,6 @@ def user_speak(langdetect=None):
 
     with open(filename, "rb") as f:
         transcript = openai.Audio.transcribe("whisper-1", f)
-    try:
-        # Detect the language of the transcribed text
-        lang = langdetect.detect(transcript['text'])
-        if lang != 'en':
-            raise ValueError("Transcribed text is not valid English")
-    except Exception as e:
-    # If detected input voice is not english, it is not valid input
-        raise ValueError("Transcribed text is not valid English")
     
     os.remove(filename)
     return transcript['text'].lower()
@@ -80,6 +72,9 @@ def respond(voice_data):
             search_string += words[word]
             url = 'http://google.com/search?q=' + search_string
         driver.get('http://google.com/search?q=' + search_string)
+        model_speak("Is there anything more I can do for you?")
+    elif re.match(r"create\snew\stab", voice_data):
+        driver.execute_script("window.open('');")
         model_speak("Is there anything more I can do for you?")
     elif re.match(r"switch\stab", voice_data):
         num_of_tabs = len(driver.window_handles)
